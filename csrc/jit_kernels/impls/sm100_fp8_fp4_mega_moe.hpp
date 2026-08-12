@@ -277,6 +277,8 @@ static void sm100_fp8_fp4_mega_moe(
 
     // Launch
     const auto num_sms = device_runtime->get_num_sms();
+    // The measured crossover is at 512 tokens; larger batches keep the normal
+    // cache policy even when the experiment switch is enabled.
     const auto weight_evict_first_env = get_env<int>("DG_MEGA_MOE_WEIGHT_EVICT_FIRST", 0);
     const SM100FP8FP4MegaMoERuntime::Args args = {
         .num_max_tokens_per_rank = num_max_tokens_per_rank,
@@ -286,7 +288,7 @@ static void sm100_fp8_fp4_mega_moe(
         .num_ranks = num_ranks,
         .activation_clamp = activation_clamp,
         .fast_math = fast_math,
-        .routed_weight_evict_first = weight_evict_first_env != 0,
+        .routed_weight_evict_first = weight_evict_first_env != 0 and num_tokens <= 512,
         .config = config,
         .y = y.data_ptr(),
         .cumulative_local_expert_recv_stats = cumulative_local_expert_recv_stats_ptr,

@@ -4,7 +4,8 @@
 
 This change adds an opt-in SM100 FP8xFP4 MegaMoE cache-policy tuning switch.
 When `DG_MEGA_MOE_WEIGHT_EVICT_FIRST=1`, routed expert-weight demand TMA loads
-use the GPU L2 `EVICT_FIRST` replacement hint. The normal path remains the
+use the GPU L2 `EVICT_FIRST` replacement hint for `num_tokens <= 512`. Larger
+batches automatically use the normal cache policy. The normal path remains the
 default (`0`), and shared-expert weights and scale-factor loads are unchanged.
 
 The hint is deliberately independent of speculative previous-active-expert
@@ -80,6 +81,7 @@ alternate the variant order, and report rank means rather than a single run.
 - Add a compile-time cache-hint parameter to the existing TMA copy helper.
 - Thread one boolean through MegaMoE runtime code generation.
 - Apply the hint only to routed expert-weight demand copies.
+- Enable it only through the measured `num_tokens <= 512` range.
 - Document the opt-in environment variable.
 
 No routing, scheduler, tiling, cluster, synchronization, numerical, or public
