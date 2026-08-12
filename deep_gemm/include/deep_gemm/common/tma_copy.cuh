@@ -15,7 +15,8 @@ constexpr uint32_t get_inner_block_atom_size() {
 
 template <uint32_t BLOCK_INNER, uint32_t BLOCK_OUTER,
           uint32_t kSwizzleMode,
-          typename dtype_t, bool kIs3DTMA = false>
+          typename dtype_t, bool kIs3DTMA = false,
+          cute::TMA::CacheHintSm100 kCacheHint = cute::TMA::CacheHintSm100::EVICT_NORMAL>
 CUTLASS_DEVICE void
 copy(void const* desc_ptr, cutlass::arch::ClusterTransactionBarrier* barrier_ptr,
      dtype_t* smem_ptr, const uint32_t& inner_idx, const uint32_t& outer_idx,
@@ -29,7 +30,7 @@ copy(void const* desc_ptr, cutlass::arch::ClusterTransactionBarrier* barrier_ptr
             #pragma unroll
             for (uint32_t i = 0; i < BLOCK_INNER / BLOCK_INNER_ATOM; ++ i) {
                 cute::SM90_TMA_LOAD_2D::copy(desc_ptr, reinterpret_cast<uint64_t*>(barrier_ptr),
-                                             static_cast<uint64_t>(cute::TMA::CacheHintSm100::EVICT_NORMAL),
+                                             static_cast<uint64_t>(kCacheHint),
                                              smem_ptr + i * BLOCK_OUTER * BLOCK_INNER_ATOM,
                                              inner_idx + i * BLOCK_INNER_ATOM, outer_idx);
             }
@@ -39,7 +40,7 @@ copy(void const* desc_ptr, cutlass::arch::ClusterTransactionBarrier* barrier_ptr
                 #pragma unroll
                 for (uint32_t i = 0; i < BLOCK_INNER / BLOCK_INNER_ATOM; ++ i) {
                     cute::SM100_TMA_2SM_LOAD_2D::copy(desc_ptr, reinterpret_cast<uint64_t*>(barrier_ptr),
-                                                      static_cast<uint64_t>(cute::TMA::CacheHintSm100::EVICT_NORMAL),
+                                                      static_cast<uint64_t>(kCacheHint),
                                                       smem_ptr + i * BLOCK_OUTER * BLOCK_INNER_ATOM,
                                                       inner_idx + i * BLOCK_INNER_ATOM, outer_idx);
                 }
@@ -48,7 +49,7 @@ copy(void const* desc_ptr, cutlass::arch::ClusterTransactionBarrier* barrier_ptr
                     #pragma unroll
                     for (uint32_t i = 0; i < BLOCK_INNER / BLOCK_INNER_ATOM; ++ i) {
                         cute::SM90_TMA_LOAD_MULTICAST_2D::copy(desc_ptr, reinterpret_cast<uint64_t*>(barrier_ptr),
-                                                               (1 << num_tma_multicast) - 1, static_cast<uint64_t>(cute::TMA::CacheHintSm90::EVICT_NORMAL),
+                                                               (1 << num_tma_multicast) - 1, static_cast<uint64_t>(kCacheHint),
                                                                smem_ptr + i * BLOCK_OUTER * BLOCK_INNER_ATOM,
                                                                inner_idx + i * BLOCK_INNER_ATOM, outer_idx);
                     }
@@ -60,7 +61,7 @@ copy(void const* desc_ptr, cutlass::arch::ClusterTransactionBarrier* barrier_ptr
             #pragma unroll
             for (uint32_t i = 0; i < BLOCK_INNER / BLOCK_INNER_ATOM; ++ i) {
                 cute::SM90_TMA_LOAD_3D::copy(desc_ptr, reinterpret_cast<uint64_t*>(barrier_ptr),
-                                            static_cast<uint64_t>(cute::TMA::CacheHintSm100::EVICT_NORMAL),
+                                            static_cast<uint64_t>(kCacheHint),
                                             smem_ptr + i * BLOCK_OUTER * BLOCK_INNER_ATOM,
                                             inner_idx + i * BLOCK_INNER_ATOM, outer_idx, batch_idx);
             }
@@ -70,7 +71,7 @@ copy(void const* desc_ptr, cutlass::arch::ClusterTransactionBarrier* barrier_ptr
                 #pragma unroll
                 for (uint32_t i = 0; i < BLOCK_INNER / BLOCK_INNER_ATOM; ++ i) {
                     cute::SM100_TMA_2SM_LOAD_3D::copy(desc_ptr, reinterpret_cast<uint64_t*>(barrier_ptr),
-                                                      static_cast<uint64_t>(cute::TMA::CacheHintSm100::EVICT_NORMAL),
+                                                      static_cast<uint64_t>(kCacheHint),
                                                       smem_ptr + i * BLOCK_OUTER * BLOCK_INNER_ATOM,
                                                       inner_idx + i * BLOCK_INNER_ATOM, outer_idx, batch_idx);
                 }
@@ -79,7 +80,7 @@ copy(void const* desc_ptr, cutlass::arch::ClusterTransactionBarrier* barrier_ptr
                     #pragma unroll
                     for (uint32_t i = 0; i < BLOCK_INNER / BLOCK_INNER_ATOM; ++ i) {
                         cute::SM90_TMA_LOAD_MULTICAST_3D::copy(desc_ptr, reinterpret_cast<uint64_t*>(barrier_ptr),
-                                                               (1 << num_tma_multicast) - 1, static_cast<uint64_t>(cute::TMA::CacheHintSm90::EVICT_NORMAL),
+                                                               (1 << num_tma_multicast) - 1, static_cast<uint64_t>(kCacheHint),
                                                                smem_ptr + i * BLOCK_OUTER * BLOCK_INNER_ATOM,
                                                                inner_idx + i * BLOCK_INNER_ATOM, outer_idx, batch_idx);
                     }
