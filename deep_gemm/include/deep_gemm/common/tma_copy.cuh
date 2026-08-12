@@ -22,7 +22,9 @@ copy(void const* desc_ptr, cutlass::arch::ClusterTransactionBarrier* barrier_ptr
      dtype_t* smem_ptr, const uint32_t& inner_idx, const uint32_t& outer_idx,
      const uint32_t& num_tma_multicast = 1, const uint32_t& batch_idx = 0) {
     DG_STATIC_ASSERT(static_cast<uint64_t>(cute::TMA::CacheHintSm90::EVICT_NORMAL) ==
-                     static_cast<uint64_t>(cute::TMA::CacheHintSm100::EVICT_NORMAL), "Invalid cache hint");
+                     static_cast<uint64_t>(cute::TMA::CacheHintSm100::EVICT_NORMAL), "Invalid normal cache hint");
+    DG_STATIC_ASSERT(static_cast<uint64_t>(cute::TMA::CacheHintSm90::EVICT_FIRST) ==
+                     static_cast<uint64_t>(cute::TMA::CacheHintSm100::EVICT_FIRST), "Invalid evict-first cache hint");
     constexpr uint32_t BLOCK_INNER_ATOM = get_inner_block_atom_size<BLOCK_INNER, kSwizzleMode, dtype_t>();
 
     if constexpr (not kIs3DTMA) {
