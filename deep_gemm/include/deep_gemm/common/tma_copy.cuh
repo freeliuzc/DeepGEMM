@@ -21,6 +21,9 @@ CUTLASS_DEVICE void
 copy(void const* desc_ptr, cutlass::arch::ClusterTransactionBarrier* barrier_ptr,
      dtype_t* smem_ptr, const uint32_t& inner_idx, const uint32_t& outer_idx,
      const uint32_t& num_tma_multicast = 1, const uint32_t& batch_idx = 0) {
+    DG_STATIC_ASSERT(kCacheHint == cute::TMA::CacheHintSm100::EVICT_NORMAL or
+                     kCacheHint == cute::TMA::CacheHintSm100::EVICT_FIRST,
+                     "Unsupported TMA cache hint");
     DG_STATIC_ASSERT(static_cast<uint64_t>(cute::TMA::CacheHintSm90::EVICT_NORMAL) ==
                      static_cast<uint64_t>(cute::TMA::CacheHintSm100::EVICT_NORMAL), "Invalid normal cache hint");
     DG_STATIC_ASSERT(static_cast<uint64_t>(cute::TMA::CacheHintSm90::EVICT_FIRST) ==
